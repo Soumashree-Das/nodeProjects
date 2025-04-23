@@ -1,0 +1,60 @@
+<!DOCTYPE html>
+<html lang="en">
+
+<head>
+    <style>
+        body {
+            font-family: Verdana, Geneva, Tahoma;
+        }
+    </style>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Home page</title>
+</head>
+
+<body>
+
+    <h1>URL SHORTENER</h1>
+
+    <% if (id) { %>
+        <p>URL generated: http://localhost:8001/url/<%= id %></p>
+    <% } %>
+
+    <div>
+        <form method="POST" action="/url">
+            <label>Enter your original URL</label>
+            <input type="text" name="url" placeholder="https://ex.com" />
+            <button type="submit">Generate</button>
+        </form>
+    </div>
+
+    <div class="">
+        <% if (urls && urls.length > 0) { %>
+            <table>
+                <thead>
+                    <tr>
+                        <th>S.No</th>
+                        <th>ShortId</th>
+                        <th>Redirect</th>
+                        <th>Clicks</th>
+                    </tr>
+                </thead>
+                <tbody>
+                    <% urls.forEach((url, index) => { %>
+                        <tr>
+                            <td><%= index + 1 %></td>
+                            <td><%= url.shortID %></td>
+                            <td><%= url.redirectURL %></td>
+                            <td><%= url.visitHistory.length %></td>
+                        </tr>
+                    <% }) %>
+                </tbody>
+            </table>
+        <% } %>
+    </div>
+    <p>
+        Try to redirect the page at "http://localhost:8001/url/shortID"
+    </p>
+</body>
+
+</html>
