@@ -76,7 +76,7 @@ export function PeerProvider({ children }) {
 
   const createOffer = async () => {
     const offer = await peer.createOffer();
-    console.log("peer.jsx-offer from createoffer():",offer);
+    console.log("peer.jsx-offer from createoffer():",JSON.stringify(offer));
     
     await peer.setLocalDescription(offer);
     return offer;
@@ -85,13 +85,13 @@ export function PeerProvider({ children }) {
   const createAnswer = async (offer) => {
     await peer.setRemoteDescription(offer);
     const answer = await peer.createAnswer();
-    console.log("peer.jsx-anser from createanswer():",offer);
+    console.log("peer.jsx-anser from createanswer():",JSON.stringify(offer));
     await peer.setLocalDescription(answer);
     return answer;
   };
 
   const setRemoteAnswer = async (ans) => {
-    console.log("ans passing to peer.setRemoteDescription(ans) in peer.jsx setRemoteAnswer(): ",ans);
+    console.log("ans passing to peer.setRemoteDescription(ans) in peer.jsx setRemoteAnswer(): ",JSON.stringify(ans));
     
     await peer.setRemoteDescription(ans);
   };
