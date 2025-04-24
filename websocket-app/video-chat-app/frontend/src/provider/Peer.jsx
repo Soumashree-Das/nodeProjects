@@ -47,8 +47,15 @@
 
 // export default Peer;
 
-
-import React, { createContext, useContext, useMemo } from "react";
+import { track } from "framer-motion/client";
+import React, {
+  createContext,
+  useCallback,
+  useContext,
+  useEffect,
+  useMemo,
+  useState,
+} from "react";
 
 const PeerContext = createContext(null);
 
@@ -59,6 +66,8 @@ export const usePeer = () => {
 
 // ✅ Top-level named export for provider component (instead of default export)
 export function PeerProvider({ children }) {
+  const [remoteStream, setRemoteStream] = useState(null);
+
   const peer = useMemo(() => {
     return new RTCPeerConnection({
       iceServers: [
@@ -76,8 +85,8 @@ export function PeerProvider({ children }) {
 
   const createOffer = async () => {
     const offer = await peer.createOffer();
-    console.log("peer.jsx-offer from createoffer():",JSON.stringify(offer));
-    
+    console.log("peer.jsx-offer from createoffer():", JSON.stringify(offer));
+
     await peer.setLocalDescription(offer);
     return offer;
   };
@@ -85,20 +94,49 @@ export function PeerProvider({ children }) {
   const createAnswer = async (offer) => {
     await peer.setRemoteDescription(offer);
     const answer = await peer.createAnswer();
-    console.log("peer.jsx-anser from createanswer():",JSON.stringify(offer));
+    console.log("peer.jsx-anser from createanswer():", JSON.stringify(offer));
     await peer.setLocalDescription(answer);
     return answer;
   };
 
   const setRemoteAnswer = async (ans) => {
-    console.log("ans passing to peer.setRemoteDescription(ans) in peer.jsx setRemoteAnswer(): ",JSON.stringify(ans));
-    
+    console.log(
+      "ans passing to peer.setRemoteDescription(ans) in peer.jsx setRemoteAnswer(): ",
+      JSON.stringify(ans)
+    );
+
     await peer.setRemoteDescription(ans);
   };
 
+  const sendStream = async (stream) => {
+    const tracks = stream.getTracks();
+    for (const track of tracks) {
+      peer.addTrack(track, stream);
+    }
+  };
+
+  const handleTrackEvent = useCallback(async (e) => {
+    const streams = e.streams;
+    setRemoteStream(e.streams[0]);
+  }, []);
+
+  useEffect(() => {
+    peer.addEventListener("track", handleTrackEvent);
+    return () => {
+      peer.removeEventListener("track", handleTrackEvent);
+    };
+  }, [peer]);
+
   return (
     <PeerContext.Provider
-      value={{ peer, createOffer, createAnswer, setRemoteAnswer }}
+      value={{
+        peer,
+        createOffer,
+        createAnswer,
+        setRemoteAnswer,
+        sendStream,
+        remoteStream,
+      }}
     >
       {children}
     </PeerContext.Provider>
